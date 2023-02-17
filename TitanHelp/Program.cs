@@ -1,9 +1,16 @@
+using Serilog;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 //Injecting Razor Pages to container
 builder.Services.AddRazorPages();
+
+builder.Host.UseSerilog((context, config) =>
+{
+    config.WriteTo.Console();
+});
 
 var app = builder.Build();
 
