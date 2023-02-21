@@ -1,85 +1,161 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using TitanHelp.Data;
+using TitanHelp.Models;
 
 namespace TitanHelp.Controllers
 {
     public class TicketsController : Controller
     {
-        //TODO: Complete actions
+        private readonly TitanHelpContext _context;
 
-        // GET: TicketsController
-        public ActionResult Index()
+        public TicketsController(TitanHelpContext context)
+        {
+            _context = context;
+        }
+
+        // GET: Tickets
+        public async Task<IActionResult> Index()
+        {
+              return View(await _context.TicketModel.ToListAsync());
+        }
+
+        // GET: Tickets/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null || _context.TicketModel == null)
+            {
+                return NotFound();
+            }
+
+            var ticketModel = await _context.TicketModel
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (ticketModel == null)
+            {
+                return NotFound();
+            }
+
+            return View(ticketModel);
+        }
+
+        // GET: Tickets/Create
+        public IActionResult Create()
         {
             return View();
         }
 
-        // GET: TicketsController/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
-
-        // GET: TicketsController/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: TicketsController/Create
+        // POST: Tickets/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<IActionResult> Create([Bind("Id,Name,DateCreated,Description")] TicketModel ticketModel)
         {
-            try
+            if (ModelState.IsValid)
             {
+                _context.Add(ticketModel);
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            catch
-            {
-                return View();
-            }
+            return View(ticketModel);
         }
 
-        // GET: TicketsController/Edit/5
-        public ActionResult Edit(int id)
+        // GET: Tickets/Edit/5
+        public async Task<IActionResult> Edit(int? id)
         {
-            return View();
+            if (id == null || _context.TicketModel == null)
+            {
+                return NotFound();
+            }
+
+            var ticketModel = await _context.TicketModel.FindAsync(id);
+            if (ticketModel == null)
+            {
+                return NotFound();
+            }
+            return View(ticketModel);
         }
 
-        // POST: TicketsController/Edit/5
+        // POST: Tickets/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,DateCreated,Description")] TicketModel ticketModel)
         {
-            try
+            if (id != ticketModel.Id)
             {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(ticketModel);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!TicketModelExists(ticketModel.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
                 return RedirectToAction(nameof(Index));
             }
-            catch
-            {
-                return View();
-            }
+            return View(ticketModel);
         }
 
-        // GET: TicketsController/Delete/5
-        public ActionResult Delete(int id)
+        // GET: Tickets/Delete/5
+        public async Task<IActionResult> Delete(int? id)
         {
-            return View();
+            if (id == null || _context.TicketModel == null)
+            {
+                return NotFound();
+            }
+
+            var ticketModel = await _context.TicketModel
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (ticketModel == null)
+            {
+                return NotFound();
+            }
+
+            return View(ticketModel);
         }
 
-        // POST: TicketsController/Delete/5
-        [HttpPost]
+        // POST: Tickets/Delete/5
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            try
+            if (_context.TicketModel == null)
             {
-                return RedirectToAction(nameof(Index));
+                return Problem("Entity set 'TitanHelpContext.TicketModel'  is null.");
             }
-            catch
+            var ticketModel = await _context.TicketModel.FindAsync(id);
+            if (ticketModel != null)
             {
-                return View();
+                _context.TicketModel.Remove(ticketModel);
             }
+            
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool TicketModelExists(int id)
+        {
+          return _context.TicketModel.Any(e => e.Id == id);
         }
     }
 }

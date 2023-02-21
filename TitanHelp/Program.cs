@@ -1,4 +1,7 @@
 using Serilog;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using TitanHelp.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,6 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 //Injecting Razor Pages to container
 builder.Services.AddRazorPages();
+builder.Services.AddDbContext<TitanHelpContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("TitanHelpContext") ?? throw new InvalidOperationException("Connection string 'TitanHelpContext' not found.")));
 
 builder.Host.UseSerilog((context, config) =>
 {
