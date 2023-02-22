@@ -14,6 +14,11 @@ namespace TitanHelp.Data
         {
         }
 
-        public DbSet<TitanHelp.Models.TicketModel> TicketModel { get; set; } = default!;
+        public DbSet<TicketModel> TicketModel { get; set; } = default!;
+        
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<TicketModel>().ToTable("TicketModel");
+        }
     }
 }
