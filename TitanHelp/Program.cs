@@ -10,7 +10,9 @@ builder.Services.AddControllersWithViews();
 //Injecting Razor Pages to container
 builder.Services.AddRazorPages();
 builder.Services.AddDbContext<TitanHelpContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("TitanHelpContext") ?? throw new InvalidOperationException("Connection string 'TitanHelpContext' not found.")));
+    options.UseSqlite(builder.Configuration.GetConnectionString("TitanHelpContext") ?? throw new InvalidOperationException("Connection string 'TitanHelpContext' not found.")));
+
+builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Host.UseSerilog((context, config) =>
 {
